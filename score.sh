@@ -2,43 +2,63 @@
 
 #declare -A score
 
+BASEDIR=$(pwd)
+
 usage() {
-    echo "put this under the same directory of *.zip *.rar files"
-    echo "put all the input files in input/1.txt, input/2.txt, etc."
+    echo "put this shell script at the same level of *.zip *.rar files"
+    echo "put all the possible input files in data/1.in, data/1.out, etc."
     echo "a score.txt will be generated containing all the scores"
     echo "press any key to continue..."
     read 
 }
 
-usage
+input_info() {
+    echo
+    echo "1.in: "
+    echo "2.in: 8 employers"
+    echo "3.in: aA1bB2cC3dD4"
+    echo "input id.in id:"
+}
 
-echo > score.txt
+command_info() {
+    echo
+    echo "press r to run, EOF for break:"
+}
 
-actions() {
-    cd tmp
-    for filename_ in *
+compile_and_run() {
+    for filename_ in *.c*
     do
         echo $filename_
         sed -i 's/void main/int main/g' $filename_
         cat $filename_
-        echo
-        echo "press r to run, EOF for break:"
+        command_info
         while read command ; do
             case $command in 
                 r) 
                 echo "run"
                 g++ $filename_
-                echo
-                echo "input in.txt id:"
+                input_info
                 read input
-                ./a.out < ../input/$input.txt
+                ./a.out < $BASEDIR/data/$input.in
+                cat $BASEDIR/data/$input.out
                 ;;
             esac
-            echo "press r to run, EOF for break:"
+            command_info
         done
     done
-    cd ..
-    rm -r tmp
+}
+
+actions() {
+    cd tmp
+    # there may be another level of dir
+    if [ $(ls|wc -l) == 1 ];
+    then
+        cd $(ls)
+    fi
+    
+    compile_and_run
+
+    cd $BASEDIR
 
     filename="${filename%.*}"
     ID=(${filename//_/ })
@@ -48,28 +68,23 @@ actions() {
     echo "$ID: $point" >> score.txt
 }
 
+usage
+echo > score.txt
+
 for filename in *.zip
 do
     unzip -o $filename -d tmp 
     actions
-    #score+=(["$ID"]=$point)
+    rm -r tmp
 done
 
 for filename in *.rar
 do 
-    filename="${filename%.*}"
-    ID=(${filename//_/ })
-
-    echo "$ID score:"
-    read point
-    echo "$ID: $point" >> score.txt
-    #score+=(["$ID"]=$point)
+    mkdir tmp
+    unrar e $filename tmp
+    
+    actions
+    rm -r tmp
 done
-
-#echo > score.txt
-#for i in "${!score[@]}"
-#do
-#    echo "$i: ${score[$i]}" >> score.txt
-#done
 
 less score.txt
