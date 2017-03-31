@@ -9,7 +9,8 @@ usage() {
     echo "put all the possible input files in data/1.in, data/2.in, etc."
     echo "a score.txt will be generated containing all the scores"
     echo "press any key to continue..."
-    read 
+    read -n1 
+    clear
 }
 
 input_info() {
@@ -31,6 +32,7 @@ command_info() {
 compile_and_run() {
     for filename_ in *.c*
     do
+        clear
         echo $filename_
         sed -i 's/void main/int main/g' "$filename_"
         sed -i 's/scanf_s/scanf/g' "$filename_"
@@ -75,9 +77,9 @@ actions() {
 
     cd $BASEDIR
 
-    echo "$ID score:"
-    read point
-    echo "$ID: $point" >> score.txt
+    #echo "$ID score:"
+    #read point
+    #echo "$ID: $point" >> score.txt
 }
 
 #usage
