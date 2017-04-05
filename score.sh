@@ -4,62 +4,65 @@
 
 BASEDIR=$(pwd)
 
-usage() {
+display_usage() {
     echo "put this shell script at the same level of *.zip *.rar files"
-    echo "put all the possible input files in data/1.in, data/2.in, etc."
-    echo "a score.txt will be generated containing all the scores"
-    echo "press any key to continue..."
+    echo "put all the standard input files in data/1.in, data/2.in, etc."
+    echo "score.txt will be generated"
+    echo "press enter to continue..."
     read -n1 
     clear
 }
 
-input_info() {
+get_input_id() {
     echo
     echo "0: stdin"
-    echo "1.in: "
-    echo "2.in: 8 employers"
-    echo "3.in: aA1bB2cC3dD4"
+    echo "2.in: 5"
+    echo "3.in: 24 32"
+    echo "5.in: this is a test"
     echo "input id.in id:"
+    read -n1 input_id
 }
 
-command_info() {
-    echo $filename_
-    echo $ID
+get_command_id() {
+    echo $cpp_file
+    echo $student_id
     echo
     echo "press r to run, c for continue:"
+    read -n1 command_id
+}
+
+get_question_id() {
+    extension="${cpp_file##*.}"
+    filename_="${cpp_file%.*}"
+    question_id=(${filename_//_/ })
+    question_id=${question_id[2]}
+    if [[ ! "$question_id" ]]; then
+        question_id=$filename_ 
+    fi
+}
+
+preprocess() {
+    iconv -f UTF-16 -t UTF-8 $cpp_file > $question_id.cpp
+    sed -i 's/#include "stdafx.h"//g' "$question_id.cpp"
+    sed -i 's/void main/int main/g' "$question_id.cpp"
+    sed -i 's/scanf_s/scanf/g' "$question_id.cpp"
 }
 
 compile_and_run() {
-    for filename_ in *.c*
+    for cpp_file in *.c*
     do
         clear
-        echo $filename_
-        sed -i 's/#include "stdafx.h"//g' "$filename_"
-        sed -i 's/void main/int main/g' "$filename_"
-        sed -i 's/scanf_s/scanf/g' "$filename_"
-        cat "$filename_"
-        command_info
-        while read -n1 command ; do
-            case $command in 
-                r) 
-                echo "run"
-                g++ "$filename_"
-                input_info
-                read input
-                case $input in
-                    0) ./a.out
-                    ;;
-                    *)
-                    ./a.out < $BASEDIR/data/$input.in
-                    ;;
-                esac
-                ;;
-                c)
-                break
-            esac
-            cat "$filename_"
-            command_info
-        done
+
+        get_question_id
+        echo $question_id
+        preprocess 
+        echo g++ $question_id".cpp"
+        read
+        g++ $question_id.cpp
+
+        ./a.out < $BASEDIR/../data/$question_id.in > $question_id.out
+        ans=$(diff $question_id.out $BASEDIR/../data/$question_id.out)
+        echo "$student_id: $ans" >> score.txt
     done
 }
 
@@ -71,38 +74,32 @@ actions() {
         cd $(ls)
     fi
     
-    ID=(${filename//_/ })
-    echo $ID" press any key to continue..."
-    read
+    student_id=(${filename//_/ })
+    echo $student_id
     compile_and_run
 
     cd $BASEDIR
-
-    #echo "$ID score:"
-    #read point
-    #echo "$ID: $point" >> score.txt
 }
 
-#usage
 rm -r tmp
 echo > score.txt
 
 for filename in *.zip
 do
+    echo $filename
     unzip -o $filename -d tmp 
     actions
     rm -r tmp
-    rm $filename
 done
 
 for filename in *.rar
 do 
+    echo $filename
     mkdir tmp
     unrar e $filename tmp
     
     actions
     rm -r tmp
-    rm $filename
 done
 
 less score.txt
