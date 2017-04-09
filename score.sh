@@ -36,6 +36,7 @@ compile_and_run() {
         clear
         echo $filename_
         sed -i 's/#include "stdafx.h"//g' "$filename_"
+        sed -i 's/_tmain(int argc, _TCHAR\* argv\[\])/main()/g' "$filename_"
         sed -i 's/void main/int main/g' "$filename_"
         sed -i 's/scanf_s/scanf/g' "$filename_"
         cat "$filename_"
