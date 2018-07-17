@@ -23,7 +23,8 @@ headers = {
 URL = 'https://www.diyidan.com/main/post/6294360860138371261/detail/'
 N_PAGE = 52
 
-user2audio = []
+user2audio = [] 
+url_set = set()
 
 
 def parse_page(page):
@@ -41,8 +42,10 @@ def parse_page(page):
         except:
             continue
         print("%s\t%s" % (user_name, audio_src))
-        user2audio.append(
-            {'user_name': user_name, 'user_page': 'www.diyidan.com' + user_page, 'audio_src': audio_src[2:]})
+        if audio_src not in url_set:
+            url_set.add(audio_src)
+            user2audio.append(
+                {'user_name': user_name, 'user_page': 'www.diyidan.com' + user_page, 'audio_src': audio_src[2:]})
 
 
 if __name__ == '__main__':

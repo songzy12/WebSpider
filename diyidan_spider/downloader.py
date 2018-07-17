@@ -7,4 +7,3 @@ if __name__ == '__main__':
         user2audio = json.loads(f.read())
     for item in user2audio:
         print(wget.download('http://'+item['audio_src'], out='data/'))
-        break
