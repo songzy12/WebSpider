@@ -52,7 +52,10 @@ def search_zhidao(wd):
             ti = dl.find('a', attrs={'class': 'ti'})
             question_url = ti.get('href')
             agree = dl.find('span', attrs={'class': 'f-black'})
-            agree = int(agree.text.strip())
+            try:
+                agree = int(agree.text.strip())
+            except:
+                continue
             res.append([question_url, agree])
 
         return res
@@ -91,8 +94,11 @@ def search_zhidao(wd):
 
 
 if __name__ == '__main__':
-    wd = "二叉查找树"
     m = {}
-    m[wd] = search_zhidao(wd)
+    with open('termonline_dsa.json') as f:
+        for line in f.readlines():
+            wd = json.loads(line.strip())['concept']
+            print(wd)
+            m[wd] = search_zhidao(wd)
     with io.open('baidu_zhidao.json', 'w', encoding='utf8') as f:
         f.write(json.dumps(m, ensure_ascii=False, indent=4))
