@@ -32,8 +32,12 @@ def search_zhidao(wd):
 
     def get_page_num(soup):
         pager = soup.find('div', attrs={'class': 'pager'})
-        pager_last = pager.find('a', attrs={'class': 'pager-last'})
-        href = pager_last.get('href')
+        try:
+            pager_last = pager.find('a', attrs={'class': 'pager-last'})
+            href = pager_last.get('href')
+        except:
+            pager_last = pager.find_all('a')[-2]
+            href = pager_last.get('href')
         return int(href.split("=")[-1])
 
     def search_page_num(wd, page_num):
