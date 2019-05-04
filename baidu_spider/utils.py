@@ -79,6 +79,7 @@ def search_zhidao(wd):
 
     max_page_num = get_page_num(soup)
     res = []
+    max_page_num = min(100, max_page_num)
     for page_num in range(0, max_page_num + 1, 10):
         question_urls = search_page_num(wd, page_num)
         for question_url, agree in question_urls:
