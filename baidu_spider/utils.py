@@ -105,5 +105,5 @@ if __name__ == '__main__':
             wd = json.loads(line.strip())['concept']
             print(wd)
             m[wd] = search_zhidao(wd)
-    with io.open('baidu_zhidao.json', 'w', encoding='utf8') as f:
-        f.write(json.dumps(m, ensure_ascii=False, indent=4))
+            with io.open('output/%s.json' % wd, 'w', encoding='utf8') as fout:
+                fout.write(json.dumps(m[wd], ensure_ascii=False, indent=4))
